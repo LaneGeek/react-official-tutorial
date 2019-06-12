@@ -39,8 +39,9 @@ class Board extends React.Component {
 }
 
 class Game extends React.Component {
+    // I added a new field to history called "lastMove" which remembers each move.
     state = {
-        history: [{ squares: Array(9).fill(null)}],
+        history: [{ squares: Array(9).fill(null), lastMove: null}],
         stepNumber: 0,
         xIsNext: true
     };
@@ -52,7 +53,9 @@ class Game extends React.Component {
         if (calculateWinner(squares) || squares[i])
             return;
         squares[i] = this.state.xIsNext ? 'X' : 'O';
-        this.setState({ history: history.concat([{ squares }]), stepNumber: history.length, xIsNext: !this.state.xIsNext});
+        // Here I convert the square number to row/col format and update history with it.
+        const lastMove = ' (row: ' + (Math.floor(i / 3) + 1) + ' col: ' + ((i % 3) + 1) + ')';
+        this.setState({ history: history.concat([{ squares, lastMove}]), stepNumber: history.length, xIsNext: !this.state.xIsNext});
     }
 
     jumpTo(step) {
@@ -64,8 +67,9 @@ class Game extends React.Component {
         const current =  history[this.state.stepNumber];
         const winner = calculateWinner(current.squares);
 
+        // Here the lastMove is rendered into each button in the list.
         const moves = history.map((step, move) => {
-            const desc = move ? 'Go to move #' + move : 'Go to game start';
+            const desc = move ? 'Go to move #' + move + step.lastMove: 'Go to game start';
             return (<li key={move}><button onClick={() => this.jumpTo(move)}>{desc}</button></li>);
         });
 
