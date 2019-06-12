@@ -41,36 +41,48 @@ class Board extends React.Component {
 class Game extends React.Component {
     // I added a new field to history called "lastMove" which remembers each move.
     state = {
-        history: [{ squares: Array(9).fill(null), lastMove: null}],
+        history: [{ squares: Array(9).fill(null), lastMove: null }],
         stepNumber: 0,
         xIsNext: true
     };
 
     handleClick(i) {
         const history = this.state.history.slice(0, this.state.stepNumber + 1);
-        const current =  history[history.length - 1];
+        const current = history[history.length - 1];
         const squares = current.squares.slice();
         if (calculateWinner(squares) || squares[i])
             return;
         squares[i] = this.state.xIsNext ? 'X' : 'O';
         // Here I convert the square number to row/col format and update history with it.
         const lastMove = ' (row: ' + (Math.floor(i / 3) + 1) + ' col: ' + ((i % 3) + 1) + ')';
-        this.setState({ history: history.concat([{ squares, lastMove}]), stepNumber: history.length, xIsNext: !this.state.xIsNext});
+        this.setState({
+            history: history.concat([{ squares, lastMove }]),
+            stepNumber: history.length,
+            xIsNext: !this.state.xIsNext
+        });
     }
 
     jumpTo(step) {
-        this.setState({stepNumber: step, xIsNext: step % 2 === 0});
+        this.setState({ stepNumber: step, xIsNext: step % 2 === 0 });
     }
 
     render() {
         const history = this.state.history;
-        const current =  history[this.state.stepNumber];
+        const current = history[this.state.stepNumber];
         const winner = calculateWinner(current.squares);
 
         // Here the lastMove is rendered into each button in the list.
         const moves = history.map((step, move) => {
-            const desc = move ? 'Go to move #' + move + step.lastMove: 'Go to game start';
-            return (<li key={move}><button onClick={() => this.jumpTo(move)}>{desc}</button></li>);
+            const desc = move ? 'Go to move #' + move + step.lastMove : 'Go to game start';
+            // Here I added a check to see if the stepNumber matches the move and if so to 'bold' the text.
+            return (
+                <li key={move}>
+                    <button onClick={() => this.jumpTo(move)}
+                            style={move === this.state.stepNumber ? { fontWeight: 'bold' } : { fontWeight: 'normal' }}>
+                        {desc}
+                    </button>
+                </li>
+            );
         });
 
         let status;
