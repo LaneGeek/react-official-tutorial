@@ -11,7 +11,7 @@ function Square(props) {
 }
 
 class Board extends React.Component {
-    size = 3; // New field to hold the size of the board.
+    size = this.props.size; // New field to hold the size of the board.
 
     renderSquare(i) {
         return <Square value={this.props.squares[i]} onClick={() => this.props.onClick(i)}/>;
@@ -36,6 +36,7 @@ class Game extends React.Component {
         stepNumber: 0,
         xIsNext: true
     };
+    boardSize = 3;
 
     handleClick(i) {
         const history = this.state.history.slice(0, this.state.stepNumber + 1);
@@ -89,6 +90,7 @@ class Game extends React.Component {
                     <Board
                         squares={current.squares}
                         onClick={(i) => this.handleClick(i)}
+                        size={this.boardSize}
                     />
                 </div>
                 <div className="game-info">
