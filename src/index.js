@@ -17,18 +17,13 @@ class Board extends React.Component {
         return <Square value={this.props.squares[i]} onClick={() => this.props.onClick(i)}/>;
     }
 
-    renderRow(index) {
-        let output = null;
-        for (let i = index; i < index + this.size; i++)
-            output = <>{output}{this.renderSquare(i)}</>;
-        return output;
-    }
-
     render() {
         let output = null;
         for (let i = 0; i < this.size; i++) {
-            const row = <div className="board-row">{this.renderRow(i * this.size)}</div>;
-            output = <>{output}{row}</>;
+            let cells = null;
+            for (let j = i * this.size; j < i * this.size + this.size; j++)
+                cells = <>{cells}{this.renderSquare(j)}</>;
+            output = <>{output}<div className="board-row">{cells}</div></>;
         }
         return <div>{output}</div>;
     }
