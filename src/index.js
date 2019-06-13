@@ -31,12 +31,12 @@ class Board extends React.Component {
 
 class Game extends React.Component {
     // I added a new field to history called "lastMove" which remembers each move.
+    boardSize = 5; // This is the board size which is no longer limited to 3!
     state = {
-        history: [{ squares: Array(9).fill(null), lastMove: null }],
+        history: [{ squares: Array(this.boardSize ** 2).fill(null), lastMove: null }],
         stepNumber: 0,
         xIsNext: true
     };
-    boardSize = 3;
 
     handleClick(i) {
         const history = this.state.history.slice(0, this.state.stepNumber + 1);
@@ -46,7 +46,7 @@ class Game extends React.Component {
             return;
         squares[i] = this.state.xIsNext ? 'X' : 'O';
         // Here I convert the square number to row/col format and update history with it.
-        const lastMove = ' (row: ' + (Math.floor(i / 3) + 1) + ' col: ' + ((i % 3) + 1) + ')';
+        const lastMove = ' (row: ' + (Math.floor(i / this.boardSize) + 1) + ' col: ' + ((i % this.boardSize) + 1) + ')';
         this.setState({
             history: history.concat([{ squares, lastMove }]),
             stepNumber: history.length,
@@ -60,6 +60,7 @@ class Game extends React.Component {
 
     render() {
         const history = this.state.history;
+        const stepNumber = this.state.stepNumber;
         const current = history[this.state.stepNumber];
         const winner = calculateWinner(current.squares);
 
@@ -69,8 +70,7 @@ class Game extends React.Component {
             // Here I added a check to see if the stepNumber matches the move and if so to 'bold' the text.
             return (
                 <li key={move}>
-                    <button onClick={() => this.jumpTo(move)}
-                            style={move === this.state.stepNumber ? { fontWeight: 'bold' } : { fontWeight: 'normal' }}>
+                    <button onClick={() => this.jumpTo(move)} style={move === stepNumber ? { fontWeight: 'bold' } : { fontWeight: 'normal' }}>
                         {desc}
                     </button>
                 </li>
@@ -78,11 +78,10 @@ class Game extends React.Component {
         });
 
         let status;
-        if (winner) {
-            status = 'Winner: ' + winner;
-        } else {
+        if (winner)
+            status = 'Winner: ' + winner.winner;
+        else
             status = 'Next player: ' + (this.state.xIsNext ? 'X' : 'O');
-        }
 
         return (
             <div className="game">
@@ -103,23 +102,121 @@ class Game extends React.Component {
 }
 
 function calculateWinner(squares) {
-    const lines = [
-        [0, 1, 2],
-        [3, 4, 5],
-        [6, 7, 8],
-        [0, 3, 6],
-        [1, 4, 7],
-        [2, 5, 8],
-        [0, 4, 8],
-        [2, 4, 6],
-    ];
-    for (let i = 0; i < lines.length; i++) {
-        const [a, b, c] = lines[i];
-        if (squares[a] && squares[a] === squares[b] && squares[a] === squares[c]) {
-            return squares[a];
+    const size = Math.sqrt(squares.length);
+
+    // Here I build a two dimensional array of the board, called "board".
+    const board = Array(size).fill(null);
+    let counter = 0;
+    for (let i = 0; i < size; i++) {
+        const row = Array(size).fill(null);
+        for (let j = 0; j < size; j++) {
+            row[j] = squares[counter];
+            counter++;
+        }
+        board[i] = row;
+    }
+
+    // First I check for a winner in rows.
+    for (let i = 0; i < size; i++) {
+        let xCount = 0;
+        let oCount = 0;
+        for (let j = 0; j < size; j++) {
+            if (board[i][j] === 'X')
+                xCount++;
+            if (board[i][j] === 'O')
+                oCount++;
+        }
+        if (xCount === size) {
+            const winningLine = calculateWinningLine('row', size, i, 'X');
+            return { winner: 'X', winningLine };
+        }
+        if (oCount === size) {
+            const winningLine = calculateWinningLine('row', size, i, 'O');
+            return { winner: 'O', winningLine };
         }
     }
+
+    // Now I check for a winner in columns.
+    for (let i = 0; i < size; i++) {
+        let xCount = 0;
+        let oCount = 0;
+        for (let j = 0; j < size; j++) {
+            if (board[j][i] === 'X')
+                xCount++;
+            if (board[j][i] === 'O')
+                oCount++;
+        }
+        if (xCount === size) {
+            const winningLine = calculateWinningLine('column', size, i, 'X');
+            return { winner: 'X', winningLine };
+        }
+        if (oCount === size) {
+            const winningLine = calculateWinningLine('column', size, i, 'O');
+            return { winner: 'O', winningLine };
+        }
+    }
+
+    // Now I check for the diagonal winner.
+    let xCount = 0;
+    let oCount = 0;
+    for (let i = 0; i < size; i++) {
+        if (board[i][i] === 'X')
+            xCount++;
+        if (board[i][i] === 'O')
+            oCount++;
+    }
+    if (xCount === size) {
+        const winningLine = calculateWinningLine('diagonal', size, null, 'X');
+        return { winner: 'X', winningLine };
+    }
+    if (oCount === size) {
+        const winningLine = calculateWinningLine('diagonal', size, null, 'O');
+        return { winner: 'O', winningLine };
+    }
+
+    // Now I check for the reverse-diagonal winner.
+    xCount = 0;
+    oCount = 0;
+    for (let i = 0; i < size; i++) {
+        if (board[i][size - i - 1] === 'X')
+            xCount++;
+        if (board[i][size - i - 1] === 'O')
+            oCount++;
+    }
+    if (xCount === size) {
+        const winningLine = calculateWinningLine('reverse-diagonal', size, null, 'X');
+        return { winner: 'X', winningLine };
+    }
+    if (oCount === size) {
+        const winningLine = calculateWinningLine('reverse-diagonal', size, null, 'O');
+        return { winner: 'O', winningLine };
+    }
     return null;
+}
+
+function calculateWinningLine(type, size, index, winner) {
+    const squares = Array(size ** 2).fill(null);
+    if (type === 'row') {
+        for (let i = index * size; i < index * size + size; i++) {
+            squares[i] = winner;
+        }
+        return squares;
+    }
+    if (type === 'column') {
+        for (let i = index; i < size ** 2; i += size) {
+            squares[i] = winner;
+        }
+        return squares;
+    }
+    if (type === 'diagonal') {
+        for (let i = 0; i < size ** 2; i += size + 1)
+            squares[i] = winner;
+        return squares;
+    }
+    // The only scenario left is the 'reverse-diagonal, which I address here.
+    for (let i = size - 1; i < size ** 2 - 1; i += (size - 1))
+        squares[i] = winner;
+    return squares;
 }
 
 ReactDOM.render(
