@@ -43,7 +43,8 @@ class Game extends React.Component {
     state = {
         history: [{ squares: Array(this.boardSize ** 2).fill(null), lastMove: null }],
         stepNumber: 0,
-        xIsNext: true
+        xIsNext: true,
+        movesReversed: false
     };
 
     handleClick(i) {
@@ -64,6 +65,10 @@ class Game extends React.Component {
 
     jumpTo(step) {
         this.setState({ stepNumber: step, xIsNext: step % 2 === 0 });
+    }
+
+    reverseMoves() {
+        this.setState({ movesReversed: !this.state.movesReversed });
     }
 
     render() {
@@ -109,7 +114,10 @@ class Game extends React.Component {
                 <div className="game-info">
                     <div>{status}</div>
                     <div>Total moves: {numberOfMoves}</div>
-                    <ol>{moves}</ol>
+                    <ol>{this.state.movesReversed ? moves.reverse() : moves}</ol>
+                    <button onClick={() => this.reverseMoves()}>
+                        {this.state.movesReversed ? 'Descending' : 'Ascending'}
+                    </button>
                 </div>
             </div>
         );
