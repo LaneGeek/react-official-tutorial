@@ -115,9 +115,9 @@ class Game extends React.Component {
                     <div>{status}</div>
                     <div>Total moves: {numberOfMoves}</div>
                     <ol>{this.state.movesReversed ? moves.reverse() : moves}</ol>
-                    <button onClick={() => this.reverseMoves()}>
+                    <button onClick={() => this.reverseMoves()}><strong>
                         {this.state.movesReversed ? 'Descending' : 'Ascending'}
-                    </button>
+                    </strong></button>
                 </div>
             </div>
         );
