@@ -15,8 +15,6 @@ function Square(props) {
 }
 
 class Board extends React.Component {
-    size = this.props.size; // New field to hold the size of the board.
-
     renderSquare(i) {
         return (
             <Square
@@ -29,9 +27,9 @@ class Board extends React.Component {
 
     render() {
         let output = null;
-        for (let i = 0; i < this.size; i++) {
+        for (let i = 0; i < this.props.size; i++) {
             let cells = null;
-            for (let j = i * this.size; j < i * this.size + this.size; j++)
+            for (let j = i * this.props.size; j < i * this.props.size + this.props.size; j++)
                 cells = <>{cells}{this.renderSquare(j)}</>;
             output = <>{output}<div className="board-row">{cells}</div></>;
         }
@@ -74,6 +72,8 @@ class Game extends React.Component {
         const current = history[this.state.stepNumber];
         const winner = calculateWinner(current.squares).winner;
         const winningLine = calculateWinner(current.squares).winningLine;
+        const numberOfMoves = current.squares.reduce((x, y) => y != null ? x + 1 : x, 0);
+        const boardIsFull = numberOfMoves === this.boardSize ** 2;
 
         // Here the lastMove is rendered into each button in the list.
         const moves = history.map((step, move) => {
@@ -91,6 +91,8 @@ class Game extends React.Component {
         let status;
         if (winner)
             status = 'Winner: ' + winner;
+        else if (boardIsFull)
+            status = 'Result is drawn';
         else
             status = 'Next player: ' + (this.state.xIsNext ? 'X' : 'O');
 
@@ -106,6 +108,7 @@ class Game extends React.Component {
                 </div>
                 <div className="game-info">
                     <div>{status}</div>
+                    <div>Total moves: {numberOfMoves}</div>
                     <ol>{moves}</ol>
                 </div>
             </div>
