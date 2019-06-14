@@ -39,7 +39,7 @@ class Board extends React.Component {
 
 class Game extends React.Component {
     // I added a new field to history called "lastMove" which remembers each move.
-    boardSize = 4; // This is the board size which is no longer limited to 3!
+    boardSize = 3; // This is the board size which is no longer limited to 3!
     state = {
         history: [{ squares: Array(this.boardSize ** 2).fill(null), lastMove: null }],
         stepNumber: 0,
@@ -70,6 +70,20 @@ class Game extends React.Component {
     reverseMoves() {
         this.setState({ movesReversed: !this.state.movesReversed });
     }
+
+    newGame() {
+        this.setState({
+            history: [{ squares: Array(this.boardSize ** 2).fill(null), lastMove: null }],
+            stepNumber: 0,
+            xIsNext: true,
+            movesReversed: false
+        })
+    }
+
+    boardChange = (event) => {
+        this.boardSize = parseInt(event.target.value);
+        this.newGame();
+    };
 
     render() {
         const history = this.state.history;
@@ -114,10 +128,25 @@ class Game extends React.Component {
                 <div className="game-info">
                     <div>{status}</div>
                     <div>Total moves: {numberOfMoves}</div>
+                    <div>
+                        <p><em>Moves list:</em></p>
+                        <button onClick={() => this.reverseMoves()}>
+                            {this.state.movesReversed ? 'Change To Ascending Order' : 'Change To Descending Order'}
+                        </button>
+                    </div>
                     <ol>{this.state.movesReversed ? moves.reverse() : moves}</ol>
-                    <button onClick={() => this.reverseMoves()}><strong>
-                        {this.state.movesReversed ? 'Descending' : 'Ascending'}
-                    </strong></button>
+                    <button onClick={() => this.newGame()}>New Game</button>
+                    <p>Choose board size below.</p>
+                    <p>Will result in a new game.</p>
+                    <select onChange={this.boardChange}>
+                        <option value='3'>3 x 3</option>
+                        <option value='4'>4 x 4</option>
+                        <option value='5'>5 x 5</option>
+                        <option value='6'>6 x 6</option>
+                        <option value='7'>7 x 7</option>
+                        <option value='8'>8 x 8</option>
+                        <option value='9'>9 x 9</option>
+                    </select>
                 </div>
             </div>
         );
