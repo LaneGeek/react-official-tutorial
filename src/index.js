@@ -7,7 +7,7 @@ function Square(props) {
         <button
             className='square'
             onClick={() => props.onClick()}
-            style={props.color === 'red' ? {color: 'red'} : {color: 'black'}}
+            style={props.color === 'red' ? { color: 'red' } : { color: 'black' }}
         >
             {props.value}
         </button>
@@ -22,7 +22,7 @@ class Board extends React.Component {
                 onClick={() => this.props.onClick(i)}
                 color={this.props.winningLine[i] != null ? 'red' : ''}
             />
-            );
+        );
     }
 
     render() {
@@ -31,7 +31,11 @@ class Board extends React.Component {
             let cells = null;
             for (let j = i * this.props.size; j < i * this.props.size + this.props.size; j++)
                 cells = <>{cells}{this.renderSquare(j)}</>;
-            output = <>{output}<div className="board-row">{cells}</div></>;
+            output = (
+                <>{output}
+                    <div className="board-row">{cells}</div>
+                </>
+            );
         }
         return <div>{output}</div>;
     }
@@ -80,10 +84,10 @@ class Game extends React.Component {
         })
     }
 
-    boardChange = (event) => {
+    boardChange(event) {
         this.boardSize = parseInt(event.target.value);
         this.newGame();
-    };
+    }
 
     render() {
         const history = this.state.history;
@@ -100,7 +104,10 @@ class Game extends React.Component {
             // Here I added a check to see if the stepNumber matches the move and if so to 'bold' the text.
             return (
                 <li key={move}>
-                    <button onClick={() => this.jumpTo(move)} style={move === stepNumber ? { fontWeight: 'bold' } : { fontWeight: 'normal' }}>
+                    <button
+                        onClick={() => this.jumpTo(move)}
+                        style={move === stepNumber ? { fontWeight: 'bold' } : { fontWeight: 'normal' }}
+                    >
                         {desc}
                     </button>
                 </li>
@@ -138,7 +145,7 @@ class Game extends React.Component {
                     <button onClick={() => this.newGame()}>New Game</button>
                     <p>Choose board size below.</p>
                     <p>Will result in a new game.</p>
-                    <select onChange={this.boardChange}>
+                    <select onChange={(event) => this.boardChange(event)}>
                         <option value='3'>3 x 3</option>
                         <option value='4'>4 x 4</option>
                         <option value='5'>5 x 5</option>
@@ -243,7 +250,7 @@ function calculateWinner(squares) {
         const winningLine = calculateWinningLine('reverse-diagonal', size, null, 'O');
         return { winner: 'O', winningLine };
     }
-    return {winner: null, winningLine: []};
+    return { winner: null, winningLine: [] };
 }
 
 function calculateWinningLine(type, size, index, winner) {
